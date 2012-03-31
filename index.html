@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>autopybook</title>
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <script type='text/javascript' src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type='text/javascript' src="/js/jquery.filter_input.js"></script>
+    <style>
+        body { background:lightgray;margin:0; }
+        .top { font-family:Arial;margin:60px 0 -70px 80px; }
+        .top div { font-size:18px;float:left;margin-top:3px; }
+        .top input { border:1px solid black;font-size:14px;font-family:'Courier New';padding:3px; }
+        .top span { padding-left:5px;font-style:italic; }
+        textarea { border:2px solid black;margin:80px;padding:5px;font-family:'Courier New';font-size:18px; }
+        #status { text-align:right;margin:-80px 107px 0 0;font-family:Arial;font-weight:bold;font-size:20px;color:green; }
+    </style>
+</head>
+<body>
+    <div class="top">
+        <div>id:&nbsp;</div>
+        <input type="text" value="{{initial_id}}"/>
+        <button>Load</button>
+        <span>{{initial_expl}}</span>
+    </div>
+    <textarea>{{initial_text|escape}}</textarea>
+    <div id="status"></div>
+    <script type="text/javascript">
+        function adjustTextareaSize() {
+            $('textarea').width(0).height(0);
+            $('textarea').width($(document).width() - 200).height($(document).height() - 200);
+        }
+        $(adjustTextareaSize);
+        $(window).resize(adjustTextareaSize);
+        if (location.pathname != '/') {
+            $(function() {
+                $('textarea').keyup(function() {
+                    if (window.changed_timeout) {
+                        window.clearTimeout(window.changed_timeout);
+                    }
+                    window.changed_timeout = window.setTimeout(function() {
+                        $('#status').text('Saving...');
+                        $.post(location.pathname, $('textarea').val(), function() { $('#status').text('Saved'); });
+                    }, 500);
+                });
+            });
+        }
+        $(function() {
+            $('input')
+                .filter_input({regex:'[a-zA-Z0-9]'})
+                .keypress(function(event) {
+                    if (event.which == 13) $('button').click();
+                });
+            $('button').click(function() {
+                location.pathname = $('input').val();
+            });
+            if (location.pathname == '/') {
+                $('input').focus();
+            } else {
+                $('textarea').focus();
+                //hack to focus at the end
+                var prev_val = $('textarea').val();
+                $('textarea').val('').val(prev_val).scrollTop($('textarea')[0].scrollHeight);
+            }
+        });
+    </script>
+</body>
+</html>

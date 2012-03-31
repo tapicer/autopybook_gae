@@ -1,0 +1,5 @@
+This is the Google App Engine version of autopybook (https://github.com/tapicer/autopybook).
+
+autopybook is a simple standlone web notebook with autosave written in Python.
+
+You can see the app running at: http://autopybook.appspot.com/
