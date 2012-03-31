@@ -43,12 +43,17 @@ class Index(webapp.RequestHandler):
         return content
     
     def write_file(self, _id, content):
-        data = Data()
-        data._id = _id
         datas = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id)
+        found = False
         for data in datas:
             data.content = content
-        data.put()
+            data.put()
+            found = True
+        if not found:
+            data = Data()
+            data._id = _id
+            data.content = content
+            data.put()
 
 application = webapp.WSGIApplication([(r'/(.*)', Index)])
 
