@@ -25,12 +25,19 @@
     <textarea>{{initial_text|escape}}</textarea>
     <div id="status"></div>
     <script type="text/javascript">
+        // autoadjust the textarea size to fit the whole browser window
         function adjustTextareaSize() {
             $('textarea').width(0).height(0);
             $('textarea').width($(document).width() - 200).height($(document).height() - 200);
         }
+
+        // autoadjust on load
         $(adjustTextareaSize);
+
+        // autoadjust on window resize
         $(window).resize(adjustTextareaSize);
+
+        // if an id is given, set the event to autosave 500ms after the user stops typing
         if (location.pathname != '/') {
             $(function() {
                 $('textarea').keyup(function() {
@@ -44,20 +51,27 @@
                 });
             });
         }
+
+        // events on load
         $(function() {
+            // allow only alphanumeric characters for the id
             $('input')
                 .filter_input({regex:'[a-zA-Z0-9]'})
                 .keypress(function(event) {
                     if (event.which == 13) $('button').click();
                 });
+
+            // load button event
             $('button').click(function() {
                 location.pathname = $('input').val();
             });
+
+            // focus input or textarea according to wheter id is given
             if (location.pathname == '/') {
                 $('input').focus();
             } else {
                 $('textarea').focus();
-                //hack to focus at the end
+                // hack to focus at the end
                 var prev_val = $('textarea').val();
                 $('textarea').val('').val(prev_val).scrollTop($('textarea')[0].scrollHeight);
             }

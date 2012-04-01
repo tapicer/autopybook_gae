@@ -9,17 +9,19 @@ class Data(db.Model):
 
 class Index(webapp.RequestHandler):
     def filter_id(self, _id):
-        # filter out the path used for the _id
+        # filter out the path used for the id
         return filter(lambda c: c.isalnum(), _id)
     
     def get(self, _id):
         if _id == 'favicon.ico':
+            # 404 favicon.ico to avoid processing the whole page when the browser requests the favicon
             self.error(404)
         else:
             template_values = { }
             
             _id = self.filter_id(_id)
             
+            # set initial text according to whether the id is given
             if _id:
                 template_values['initial_text'] = self.read_file(_id)
             else:
@@ -32,10 +34,12 @@ class Index(webapp.RequestHandler):
             self.response.out.write(template.render(path, template_values))
     
     def post(self, _id):
+        # save POST body for the given id
         _id = self.filter_id(_id)
         self.write_file(_id, self.request.body.decode('utf-8'))
     
     def read_file(self, _id):
+        # read the data from the datastore
         content = ''
         datas = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id)
         for data in datas:
@@ -43,12 +47,15 @@ class Index(webapp.RequestHandler):
         return content
     
     def write_file(self, _id, content):
+        # write the data in the datastore
         datas = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id)
         found = False
         for data in datas:
+            # previously existing register for the id
             data.content = content
             data.put()
             found = True
+        # new id
         if not found:
             data = Data()
             data._id = _id
