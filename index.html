@@ -45,8 +45,15 @@
                         window.clearTimeout(window.changed_timeout);
                     }
                     window.changed_timeout = window.setTimeout(function() {
-                        $('#status').text('Saving...');
-                        $.post(location.pathname, $('textarea').val(), function() { $('#status').text('Saved'); });
+                        var new_value = $('textarea').val();
+                        // avoid saving the same thing twice, and also avoid saving on cursor move and other events
+                        if (new_value != window.last_saved_value) {
+                            $('#status').text('Saving...');
+                            $.post(location.pathname, new_value, function() {
+                                $('#status').text('Saved');
+                                window.last_saved_value = new_value;
+                            });
+                        }
                     }, 500);
                 });
             });
@@ -75,6 +82,9 @@
                 var prev_val = $('textarea').val();
                 $('textarea').val('').val(prev_val).scrollTop($('textarea')[0].scrollHeight);
             }
+
+            // save text area value to avoid saving the same thing twice
+            window.last_saved_value = $('textarea').val();
         });
     </script>
 </body>
