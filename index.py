@@ -40,23 +40,20 @@ class Index(webapp.RequestHandler):
     
     def read_file(self, _id):
         # read the data from the datastore
-        content = ''
-        datas = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id)
-        for data in datas:
-            content = data.content
-        return content
+        data = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id).get()
+        if data:
+            return data.content
+        return ''
     
     def write_file(self, _id, content):
         # write the data in the datastore
-        datas = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id)
-        found = False
-        for data in datas:
+        data = db.GqlQuery("SELECT * FROM Data WHERE _id = :1", _id).get()
+        if data:
             # previously existing register for the id
             data.content = content
             data.put()
-            found = True
-        # new id
-        if not found:
+        else:
+            # new id
             data = Data()
             data._id = _id
             data.content = content
